@@ -1,0 +1,13 @@
+,top_1_accuracy,top_5_accuracy
+vit_small_patch16_224,0.81386,0.96132
+vit_small_patch32_224,0.75994,0.93272
+vit_base_patch16_224,0.85102,0.97526
+vit_base_patch32_224,0.80722,0.95568
+vit_large_patch16_224,0.85842,0.9782
+vit_large_patch32_384,0.81508,0.96084
+beit_base_patch16_224,0.85222,0.97652
+beit_large_patch16_224,0.8748,0.98318
+beitv2_base_patch16_224,0.86474,0.98044
+beitv2_large_patch16_224,0.88384,0.986
+beit3_base_patch16_224,0.8537,0.97638
+beit3_large_patch16_224,0.87622,0.98332

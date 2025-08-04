@@ -1,0 +1,50 @@
+{
+    "vit_small_patch16_224": {
+        "top_1_accuracy": 0.81386,
+        "top_5_accuracy": 0.96132
+    },
+    "vit_small_patch32_224": {
+        "top_1_accuracy": 0.75994,
+        "top_5_accuracy": 0.93272
+    },
+    "vit_base_patch16_224": {
+        "top_1_accuracy": 0.85102,
+        "top_5_accuracy": 0.97526
+    },
+    "vit_base_patch32_224": {
+        "top_1_accuracy": 0.80722,
+        "top_5_accuracy": 0.95568
+    },
+    "vit_large_patch16_224": {
+        "top_1_accuracy": 0.85842,
+        "top_5_accuracy": 0.9782
+    },
+    "vit_large_patch32_384": {
+        "top_1_accuracy": 0.81508,
+        "top_5_accuracy": 0.96084
+    },
+    "beit_base_patch16_224": {
+        "top_1_accuracy": 0.85222,
+        "top_5_accuracy": 0.97652
+    },
+    "beit_large_patch16_224": {
+        "top_1_accuracy": 0.8748,
+        "top_5_accuracy": 0.98318
+    },
+    "beitv2_base_patch16_224": {
+        "top_1_accuracy": 0.86474,
+        "top_5_accuracy": 0.98044
+    },
+    "beitv2_large_patch16_224": {
+        "top_1_accuracy": 0.88384,
+        "top_5_accuracy": 0.986
+    },
+    "beit3_base_patch16_224": {
+        "top_1_accuracy": 0.8537,
+        "top_5_accuracy": 0.97638
+    },
+    "beit3_large_patch16_224": {
+        "top_1_accuracy": 0.87622,
+        "top_5_accuracy": 0.98332
+    }
+}
