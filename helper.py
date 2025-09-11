@@ -17,6 +17,7 @@ import models
 IMAGENET_CLASS_INDEX = Path("datasets/OOC_Dataset/00_helper_files/imagenet_class_index.json")
 SEMANTIC_SIMILARITY_MATRIX = Path("datasets/OOC_Dataset/00_helper_files/semantic_similarity_matrix.npy")
 
+
 def summarize_accuracy():
     # read data from each file
     model_types = ['cnn', 'vit', 'hybrid']
@@ -59,7 +60,7 @@ def add_class_labels():
     with open(mapping_path) as file:
         text = file.read()
     text = text.split('\n')
-    class_labels = {text[i][0:9] : text[i][10:].split(',')[0].replace(' ', '_') for i in range(len(text))}
+    class_labels = {text[i][0:9]: text[i][10:].split(',')[0].replace(' ', '_') for i in range(len(text))}
 
     with open(csv_path, 'a') as file:
         file.write('\n')
@@ -179,11 +180,11 @@ def save_prediction_ooc_dataset(output_root, data_path, model_name, img_names, p
 
     # create output file if it does not exist
     prediction_path = output_path / Path(model_name + '.csv')
-    columns = list(df) + [ 'prediction_class_id',
-                           'prediction_class',
-                           'prediction_probability',
-                           'top_5_prediction_class_id',
-                           'prediction_scores']
+    columns = list(df) + ['prediction_class_id',
+                          'prediction_class',
+                          'prediction_probability',
+                          'top_5_prediction_class_id',
+                          'prediction_scores']
 
     if not prediction_path.exists():
         csv_df = pd.DataFrame(columns=columns)
@@ -206,40 +207,26 @@ def save_prediction_ooc_dataset(output_root, data_path, model_name, img_names, p
     if not metadata.empty:
         metadata.to_csv(prediction_path, index=False, header=False, mode='a')
 
-def save_prediction(csv_file_path, metadata_file, task, image_names, pred_scores):
+
+def save_prediction(csv_file_path, metadata_file, task, image_names, labels, pred_scores):
     """
     save the predictions of a model into csv file
     :param csv_file_path: Path -- path to the csv file
     :param metadata_file: Path -- path to the metadata file
     :param task: str -- task (dataset type) on which the inference is done
     :param image_names: list(str) -- list of image names
+    :param labels: list(int) -- list of labels
     :param pred_scores:
     :return:
     """
     # define columns for csv file
-    column = []
-    if task == "background":
-        column = [
-            "dataset_id",
-            "background_class_index",
-            "prediction_class_index",
-            "prediction_probability",
-            "prediction_distance"
-        ]
-    elif task == "ranked": # TODO
-        column = [
-            "dataset_id",
-            "background_class_index",
-            "object_class_index",
-            "prediction_class_index"
-        ]
-    elif task == "placement": # TODO
-        column = [
-            "dataset_id",
-            "background_class_index",
-            "object_class_index",
-            "prediction_class_index"
-        ]
+    column = [
+        "dataset_id",
+        "actual_class_index",
+        "prediction_class_index",
+        "prediction_probability",
+        "prediction_distance"
+    ]
 
     # create file if not exists and add columns into file
     if not csv_file_path.exists() and column:
@@ -250,8 +237,10 @@ def save_prediction(csv_file_path, metadata_file, task, image_names, pred_scores
 
     # get metadata
     metadata = pd.read_csv(metadata_file)
-    class_hash_list = [metadata[metadata["dataset_id"] == img_name].iloc[0]["class_hash"] for img_name in image_names]
-    background_class_indices = find_class_index_by_class_hash(class_hash_list)
+
+    # get background class index:
+    # class_hash_list = [metadata[metadata["dataset_id"] == img_name].iloc[0]["class_hash"] for img_name in image_names]
+    # background_class_indices = find_class_index_by_class_hash(class_hash_list)
 
     # get prediction class index
     softmax = nn.Softmax(dim=1)
@@ -260,19 +249,18 @@ def save_prediction(csv_file_path, metadata_file, task, image_names, pred_scores
     prediction_probabilities = predictions.values.tolist()
     prediction_class_indices = predictions.indices.tolist()
 
-    # find rank (distance) for background only task
-    prediction_rank_list = []
-    if task == "background":
-        prediction_rank_list = [find_rank(idx_1, idx_2) for idx_1, idx_2 in zip(background_class_indices, prediction_class_indices)]
+    # find rank (distance) of prediction to actual class
+    prediction_rank_list = [find_rank(idx_1, idx_2) for idx_1, idx_2 in zip(labels, prediction_class_indices)]
 
     # add results into csv file
     added_row_list = []
-    for name, bg_idx, pred_idx, pred_prob, rank  in zip(image_names, background_class_indices, prediction_class_indices, prediction_probabilities, prediction_rank_list):
+    for name, label_idx, pred_idx, pred_prob, rank in zip(image_names, labels, prediction_class_indices,
+                                                          prediction_probabilities, prediction_rank_list):
         if name in csv_df.values:
             continue
         new_row = {
             "dataset_id": name,
-            "background_class_index":  bg_idx,
+            "actual_class_index": label_idx,
             "prediction_class_index": pred_idx,
             "prediction_probability": round(pred_prob, 5),
             "prediction_distance": rank
@@ -280,6 +268,7 @@ def save_prediction(csv_file_path, metadata_file, task, image_names, pred_scores
         added_row_list.append(new_row)
     add_to_csv = pd.DataFrame(added_row_list)
     add_to_csv.to_csv(csv_file_path, index=False, header=False, mode="a")
+
 
 def find_rank(class_index_1, class_index_2):
     """
@@ -294,6 +283,7 @@ def find_rank(class_index_1, class_index_2):
     rank = sorted_ranking.tolist().index(int(class_index_2))
 
     return rank
+
 
 def create_accuracy_files_and_check_model_status(json_file_path, csv_file_path, model_name):
     """
@@ -319,11 +309,17 @@ def create_accuracy_files_and_check_model_status(json_file_path, csv_file_path, 
         data = json.load(file)
         if model_name in data:
             json_check = True
-    with open(json_file_path, 'r', newline='', encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            if model_name in row:
-                csv_check = True
+
+    # with open(csv_file_path, 'r', newline='', encoding='utf-8') as file:
+    #     reader = csv.reader(file, delimiter=',')
+    #     for row in reader:
+    #         if model_name in row:
+    #             csv_check = True
+
+    df = pd.read_csv(csv_file_path)
+    if (df.iloc[:, 0].str.contains(model_name, na=False)).any():
+        csv_check = True
+
     if json_check and csv_check:
         return True
 
@@ -375,14 +371,113 @@ def find_class_index_by_class_hash(class_hash_list):
     """
     with open(IMAGENET_CLASS_INDEX, "r", encoding="utf-8") as file:
         data = json.load(file)
-        hash_index_mapping_dict = {value[0]: int(key) for key, value in data.items()} # format: {class_hash: class_index}
+        hash_index_mapping_dict = {value[0]: int(key) for key, value in
+                                   data.items()}  # format: {class_hash: class_index}
         class_index_list = [hash_index_mapping_dict[class_hash] for class_hash in class_hash_list]
 
     return class_index_list
+
+
+def get_background_imagenet_s_list():
+    """
+    get list of background names that have segmentation mask in ImageNet-S
+    :return: list(str)
+    """
+    # list of imagenet-s image names
+    imagenet_s = Path("datasets/OOC_Dataset/01_ImageNet-S-919/imagenet-s_metadata.csv")
+    s_df = pd.read_csv(imagenet_s)
+    s_list = s_df["image_name"].tolist()
+
+    # list of background names
+    backgrounds = Path("datasets/OOC_Dataset/02_backgrounds/backgrounds_metadata.csv")
+    bg_df = pd.read_csv(backgrounds)
+    bg_list = bg_df["imagenet_name"].tolist()
+
+    # get list of background names that exist in imagenet-s
+    bg_s_list = []
+    for bg in bg_list:
+        if bg in s_list:
+            bg_s_list.append(bg)
+
+    # check if background images has segmentation masks
+    seg_path = Path("datasets/OOC_Dataset/01_ImageNet-S-919/segmentation")
+    bg_s_count = 0
+    final_list = []
+
+    for bg in bg_s_list:
+        seg_file = seg_path / bg.replace("JPEG", "png")
+        if seg_file.is_file():
+            bg_s_count += 1
+            final_list.append(bg)
+    return final_list
+
+
+def check_missing_outputs():
+    """
+    to check missing results
+    """
+    model_list = models.get_model_list("")
+    data_root = Path("datasets/OOC_Dataset/04_OOC_compositions/similarity_ranked_compositions")
+    output_root = Path("outputs/similarity_ranked")
+    paths = output_root.glob("*")
+    path_list = list(paths)
+
+    count_cnn_missing = 0
+    count_vit_missing = 0
+    count_hybrid_missing = 0
+    count_img_missing_pred = 0
+    for p in path_list:
+        # check folder accuracy, prediction
+        if len(list(p.glob("*"))) == 2:
+            a_path = p / "accuracy"
+            p_path = p / "prediction"
+
+            # check number of accuracy files
+            if len(list(a_path.glob("*"))) < 6:
+                for m in ["cnn", "vit", "hybrid"]:
+                    if not list(a_path.glob(f"*{m}*")):
+                        # print(f"{p} {m} accuracy missing")
+                        if m == "cnn":
+                            count_cnn_missing += 1
+                        elif m == "vit":
+                            count_vit_missing += 1
+                        else:
+                            count_hybrid_missing += 1
+
+            # check number of prediction files
+            if len(list(p_path.glob("*"))) < len(model_list):
+                count_img_missing_pred += 1
+                count_models = 0
+                for m in model_list:
+                    if not list(p_path.glob(f"*{m}*")):
+                        count_models += 1
+                        # print(f"{p} {m} prediction missing")
+                # print(f"--> {p} {count_models} predictions missing")
+
+            # check if the number of predictions in each model matches the number of data
+            data_path = data_root / p.name / "images"
+            count_data = len(list(data_path.glob("*")))
+            for p_file in p_path.glob("*"):
+                print(f"checking {p_file}")
+                df = pd.read_csv(p_file)
+                count_row = len(df)
+                if count_row < count_data:
+                    print(f"{p_file} missing {count_data - count_row} predictions")
+
+        else:
+            print(f"{p} missing a folder!")
+
+    print("=====================================")
+    print(f"path counts = 247: {len(path_list) == 247}")
+    print(
+        f"Accuracy files: {count_cnn_missing} cnn missing, {count_vit_missing} vit missing, {count_hybrid_missing} hybrid missing")
+    print(f"Prediction files: {count_img_missing_pred} img folders missing some pred files")
 
 
 if __name__ == '__main__':
     # summarize_accuracy()
     # add_class_labels()
     # create_metadata_ooc()
-    pass
+    # bg_list = get_background_imagenet_s_list()
+    # pass
+    check_missing_outputs()

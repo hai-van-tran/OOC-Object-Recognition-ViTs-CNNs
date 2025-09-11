@@ -385,7 +385,7 @@ def process_predictions_background_only(model_type=None):
     prediction_files = []
 
     if model_type:
-        model_names = models.model_list(model_type)
+        model_names = models.get_model_list(model_type)
         for file in all_prediction_files:
             model_name = file.stem
             if model_name in model_names:

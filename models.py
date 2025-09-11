@@ -7,7 +7,7 @@ import os
 import json
 
 
-def model_list(model_type):
+def get_model_list(model_type):
     vit_models = [
         # ViT (supervised)
         'vit_small_patch16_224',
@@ -34,7 +34,7 @@ def model_list(model_type):
         'beitv2_base_patch16_224',
         'beitv2_large_patch16_224',
         'beit3_base_patch16_224',
-        'beit3_large_patch16_224'
+        'beit3_large_patch16_224',
         # 'beit_base_patch16_224.in22k_ft_in22k_in1k',
         # 'beit_base_patch16_384.in22k_ft_in22k_in1k',
         # 'beit_large_patch16_224.in22k_ft_in22k_in1k',
@@ -46,6 +46,12 @@ def model_list(model_type):
         # 'beit3_large_patch16_224.indomain_in22k_ft_in1k',
 
         # deit
+        'deit_small_patch16_224',
+        'deit_base_patch16_224',
+        'deit3_small_patch16_224',
+        'deit3_medium_patch16_224',
+        'deit3_base_patch16_224',
+        'deit3_large_patch16_224'
 
     ]
     cnn_models = [
@@ -110,4 +116,4 @@ def create_model(name):
     return {'model': model, 'transform': transform}
 
 if __name__ == '__main__':
-    model_list = model_list('vit')
+    model_list = get_model_list('vit')
