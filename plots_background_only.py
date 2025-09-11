@@ -9,42 +9,75 @@ from matplotlib.colors import to_rgba
 import models
 
 
-def plot_accuracy_on_background_only(model_type):
+def plot_accuracy_on_background_only():
     """
     plot accuracy on background alone
-    :param model_type:
     :return:
     """
-    # bar color
-    if model_type == "cnn":
-        color_top_1 = "#4a5759"
-        color_top_5 = "#b0c4b1"
-    elif model_type == "vit":
-        color_top_1 = "#415a77"
-        color_top_5 = "#778da9"
-    elif model_type == "hybrid":
-        color_top_1 = "#b5838d"
-        color_top_5 = "#e5989b"
-    else:
-        color_top_1 = "#415a77"
-        color_top_5 = "#778da9"
-    accuracy_path = Path("outputs/background/accuracy") / (model_type + "_accuracy.csv")
-    df = pd.read_csv(accuracy_path)
-    df.rename(columns={df.columns[0]: "model_name"}, inplace=True)
-    df = df.drop(df[df["model_name"] == "average"].index)
+    model_types = ["cnn", "vit", "hybrid"]
 
-    plt.figure(figsize=(18, 10))
-    x = np.arange(len(df))
-    width = 0.4
+    average_top1_accuracy_list = []
+    average_top5_accuracy_list = []
 
-    plt.bar(x, df["top_1_accuracy"], width=width, color=color_top_1,  label="Top-1 Accuracy")
-    plt.bar(x + width, df["top_5_accuracy"], width=width, color=color_top_5, label="Top-5 Accuracy")
-    plt.xticks(x + width/2, df["model_name"], rotation=45, ha="right")
-    plt.ylabel("Accuracy")
+    for model_type in model_types:
+        # bar color
+        if model_type == "cnn":
+            color_top_1 = "#4a5759"
+            color_top_5 = "#b0c4b1"
+        elif model_type == "vit":
+            color_top_1 = "#415a77"
+            color_top_5 = "#778da9"
+        elif model_type == "hybrid":
+            color_top_1 = "#b5838d"
+            color_top_5 = "#e5989b"
+        else:
+            color_top_1 = "#415a77"
+            color_top_5 = "#778da9"
+        accuracy_path = Path("outputs/background/accuracy") / (model_type + "_accuracy.csv")
+        df = pd.read_csv(accuracy_path)
+        df.rename(columns={df.columns[0]: "model_name"}, inplace=True)
+        df = df.drop(df[df["model_name"] == "average"].index)
+
+        # compute average accuracy across models
+        average_top1 = df["top_1_accuracy"].mean()
+        average_top5 = df["top_5_accuracy"].mean()
+        average_top1_accuracy_list.append(average_top1)
+        average_top5_accuracy_list.append(average_top5)
+
+        plt.figure(figsize=(9, 5))
+        x = np.arange(len(df))
+        width = 0.4
+
+        plt.bar(x, df["top_1_accuracy"], width=width, color=color_top_1,  label="Top-1 Accuracy")
+        plt.bar(x + width, df["top_5_accuracy"], width=width, color=color_top_5, label="Top-5 Accuracy")
+        plt.xticks(x + width/2, df["model_name"], rotation=45, ha="right")
+        plt.ylabel("Accuracy")
+        plt.grid(axis="y", alpha=0.3)
+
+        plt.legend()
+        plt.title(f"{model_type.upper()} accuracy on background alone")
+        plt.tight_layout()
+
+        # save plot
+        save_path = Path("plots/background/accuracy")
+        save_path.mkdir(exist_ok=True, parents=True)
+        figure_name = plt.gca().get_title().replace(" ", "_")
+
+        plt.savefig(save_path / figure_name)
+
+    # plot average accuracy
+    plt.figure(figsize=(6, 6))
+    x = np.arange(len(model_types))
+    width = 0.2
+
+    plt.bar(x, average_top1_accuracy_list, width=width, color="#735d78", label="Top-1 Accuracy")
+    plt.bar(x + width, average_top5_accuracy_list, width=width, color="#b392ac", label="Top-5 Accuracy")
+    plt.xticks(x + width / 2, model_types, ha="right")
+    plt.ylabel("Average Accuracy")
     plt.grid(axis="y", alpha=0.3)
 
     plt.legend()
-    plt.title(f"{model_type.upper()} accuracy on background alone")
+    plt.title("Average accuracy on background alone")
     plt.tight_layout()
 
     # save plot
@@ -52,7 +85,7 @@ def plot_accuracy_on_background_only(model_type):
     save_path.mkdir(exist_ok=True, parents=True)
     figure_name = plt.gca().get_title().replace(" ", "_")
 
-    # plt.savefig(save_path / figure_name)
+    plt.savefig(save_path / figure_name)
     plt.show()
 
 def plot_histogram_boxplot(mini_bin_size=50, bin_size=10):
@@ -142,9 +175,8 @@ def plot_histogram_boxplot(mini_bin_size=50, bin_size=10):
     save_path = Path("plots/background/histogram_boxplot")
     save_path.mkdir(exist_ok=True, parents=True)
     figure_name = f"Semantic_Distance_and_Average_Distance_(bin_{mini_bin_size}_vs_{bin_size})"
-    print(figure_name)
-    # plt.savefig(save_path / figure_name)
 
+    # plt.savefig(save_path / figure_name)
     plt.show()
 
 
@@ -153,9 +185,7 @@ def plot_histogram_boxplot(mini_bin_size=50, bin_size=10):
 
 if __name__=="__main__":
     # plot accuracy
-    # plot_accuracy_on_background_only("cnn")
-    # plot_accuracy_on_background_only("vit")
-    # plot_accuracy_on_background_only("hybrid")
+    plot_accuracy_on_background_only()
 
     # plot similarity distance of predictions to actual classes
     plot_histogram_boxplot(50, 10)
