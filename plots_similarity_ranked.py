@@ -29,7 +29,8 @@ def write_all_predictions_in_a_file(model_type):
     csv_df.to_csv(csv_path, index=False)
 
     count = 0
-    for path in path_list:
+    for i, path in enumerate(path_list):
+        print(f"{i+1}. read {model_type} prediction file of {path.name}..")
         prediction_path = path / "prediction"
         metadata_path = list((data_root / path.name).glob("*metadata.csv"))[0]
         metadata_df = pd.read_csv(metadata_path, usecols=["dataset_id", "similarity_rank"])

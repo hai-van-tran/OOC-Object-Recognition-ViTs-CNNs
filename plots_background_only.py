@@ -179,13 +179,88 @@ def plot_histogram_boxplot(mini_bin_size=50, bin_size=10):
     # plt.savefig(save_path / figure_name)
     plt.show()
 
+def plot_semantic_distance_frequency(single_bins=30, combined_bin=50):
+    """
+    plot frequency of semantic distances
+    :param single_bins: number of bins for plotting each model type
+    :param combined_bin: number of bins for plotting 3 model types together
+    :return:
+    """
+    output_path = Path("outputs/background/prediction")
 
+    model_types = ["cnn", "vit", "hybrid"]
 
+    model_lists = []
+    model_count = 0
+    for model_type in model_types:
+        model_list = models.get_model_list(model_type)
+        model_lists.append(model_list)
+        model_count += len(model_list)
 
+    # go through each model list of cnn, vit and hybrid
+    df_lists = []
+    for i, model_list in enumerate(model_lists):
+        # read prediction files
+        df_list = []
+        for model in model_list:
+            csv_file = output_path / (model + ".csv")
+            df = pd.read_csv(csv_file, usecols=["prediction_distance"])
+            df_list.append(df)
+        df_lists.append(df_list)
+
+    # plot distance frequency each model type
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    colors = ["blue", "red", "green"]
+    model_titles = ["CNN", "ViT", "Hybrid"]
+    ymax = 0
+
+    for i, (df_list, title, color) in enumerate(zip(df_lists, model_titles, colors)):
+        all_counts = []
+        bin_centers = 0
+        for df in df_list:
+            counts, bin_edges = np.histogram(df, bins=single_bins, range=(0, 1000))
+            counts = counts / counts.sum()
+            bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+            axes[i].plot(bin_centers, counts, alpha=0.5, linewidth=1.2, color="gray")
+            all_counts.append(counts)
+        avg_counts = np.mean(all_counts, axis=0)
+
+        axes[i].plot(bin_centers, avg_counts, alpha=1, linewidth=3, color=color, label="Average")
+        ymax = max(ymax, max(avg_counts))
+
+        axes[i].set_title(f"{title} ({len(df_list)} models)")
+        axes[i].set_xlabel(f"Semantic Distance (bins={single_bins})")
+        axes[i].set_ylabel("Normalized Frequency")
+        axes[i].grid(True, alpha=0.3)
+        axes[i].legend()
+    for ax in axes:
+        ax.set_ylim(0, ymax * 1.2)
+    plt.tight_layout()
+    # plt.show()
+
+    # plot distance frequency 3 model types in one chart
+    plt.figure(figsize=(10, 6))
+    line_styles = ["-", "--", "-."]
+    concat_df_list = [np.concatenate(df_list) for df_list in df_lists]
+    for i, concat_df in enumerate(concat_df_list):
+        concat_df = concat_df + 1e-6
+        counts, bin_edges = np.histogram(concat_df, bins=combined_bin, range=(1e-6, 1000+1e-6))
+        print(bin_edges)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+        counts = counts / counts.sum()
+        plt.plot(bin_centers, counts, color=colors[i], linestyle=line_styles[i], linewidth=2.5, label=model_titles[i])
+
+    plt.xscale("log")
+    plt.xlabel(f"Semantic Distance in log scale (bins={combined_bin})")
+    plt.ylabel("Normalized Frequency")
+    plt.legend()
+    plt.grid(True, alpha=0.3, which="both")
+    plt.title("Semantic Distance Frequency in Different Model Types")
+    # plt.show()
 
 if __name__=="__main__":
     # plot accuracy
-    plot_accuracy_on_background_only()
+    # plot_accuracy_on_background_only()
 
     # plot similarity distance of predictions to actual classes
-    plot_histogram_boxplot(50, 10)
+    plot_semantic_distance_frequency(30, 1000)
