@@ -1,0 +1,46 @@
+{
+    "resnet34": {
+        "top_1_accuracy": 0.46929904002898026,
+        "top_5_accuracy": 0.6524180402101069
+    },
+    "resnet50": {
+        "top_1_accuracy": 0.5221880094185836,
+        "top_5_accuracy": 0.7083861619271871
+    },
+    "resnet101": {
+        "top_1_accuracy": 0.569462053975729,
+        "top_5_accuracy": 0.737728672341967
+    },
+    "inception_v3": {
+        "top_1_accuracy": 0.526535047998551,
+        "top_5_accuracy": 0.7187103785546096
+    },
+    "inception_v4": {
+        "top_1_accuracy": 0.5486324941133852,
+        "top_5_accuracy": 0.7337438869769969
+    },
+    "efficientnetv2_rw_s": {
+        "top_1_accuracy": 0.48288353559137837,
+        "top_5_accuracy": 0.7034957435247238
+    },
+    "efficientnetv2_rw_m": {
+        "top_1_accuracy": 0.6047817424379641,
+        "top_5_accuracy": 0.7873573627965949
+    },
+    "efficientnet_b2": {
+        "top_1_accuracy": 0.5064299945662017,
+        "top_5_accuracy": 0.6986053251222605
+    },
+    "efficientnet_b3": {
+        "top_1_accuracy": 0.5513493932258648,
+        "top_5_accuracy": 0.7335627603694983
+    },
+    "efficientnet_b4": {
+        "top_1_accuracy": 0.5364970114109763,
+        "top_5_accuracy": 0.7460604962869045
+    },
+    "average": {
+        "top_1_accuracy": 0.5318058322767614,
+        "top_5_accuracy": 0.7220068828110849
+    }
+}

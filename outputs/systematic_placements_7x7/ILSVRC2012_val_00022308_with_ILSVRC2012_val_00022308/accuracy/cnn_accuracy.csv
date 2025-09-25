@@ -1,0 +1,12 @@
+,top_1_accuracy,top_5_accuracy
+resnet34,1.0,1.0
+resnet50,1.0,1.0
+resnet101,1.0,1.0
+inception_v3,0.9387755102040817,1.0
+inception_v4,0.9795918367346939,1.0
+efficientnetv2_rw_s,1.0,1.0
+efficientnetv2_rw_m,1.0,1.0
+efficientnet_b2,0.9183673469387755,1.0
+efficientnet_b3,0.9795918367346939,1.0
+efficientnet_b4,1.0,1.0
+average,0.9816326530612244,1.0

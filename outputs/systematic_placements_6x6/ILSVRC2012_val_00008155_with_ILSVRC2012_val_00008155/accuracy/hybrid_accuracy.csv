@@ -1,0 +1,9 @@
+,top_1_accuracy,top_5_accuracy
+ssl_resnet50,1.0,1.0
+convnext_small,1.0,1.0
+convnext_base,1.0,1.0
+convnext_large,1.0,1.0
+convnext_xlarge,1.0,1.0
+convnextv2_base,1.0,1.0
+convnextv2_large,1.0,1.0
+average,1.0,1.0

@@ -2,6 +2,7 @@
 resnet34,0.76422,0.92896
 resnet50,0.80378,0.9459
 resnet101,0.81946,0.95772
+ssl_resnet50,0.79236,0.9482
 inception_v3,0.77464,0.93476
 inception_v4,0.80142,0.94974
 efficientnetv2_rw_s,0.82872,0.9633

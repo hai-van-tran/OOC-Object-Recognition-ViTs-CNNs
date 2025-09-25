@@ -1,0 +1,78 @@
+{
+    "vit_small_patch16_224": {
+        "top_1_accuracy": 0.5135722041259501,
+        "top_5_accuracy": 0.7155266015200868
+    },
+    "vit_small_patch32_224": {
+        "top_1_accuracy": 0.3253709735794426,
+        "top_5_accuracy": 0.5155627940644227
+    },
+    "vit_base_patch16_224": {
+        "top_1_accuracy": 0.6420557365182772,
+        "top_5_accuracy": 0.7908070937386898
+    },
+    "vit_base_patch32_224": {
+        "top_1_accuracy": 0.4469779225479551,
+        "top_5_accuracy": 0.6431415128483532
+    },
+    "vit_large_patch16_224": {
+        "top_1_accuracy": 0.6402461093014838,
+        "top_5_accuracy": 0.7947882736156352
+    },
+    "vit_large_patch32_384": {
+        "top_1_accuracy": 0.47158885269634454,
+        "top_5_accuracy": 0.6346362649294245
+    },
+    "beit_base_patch16_224": {
+        "top_1_accuracy": 0.6324647122692725,
+        "top_5_accuracy": 0.8105320304017373
+    },
+    "beit_large_patch16_224": {
+        "top_1_accuracy": 0.6910966340933767,
+        "top_5_accuracy": 0.8436482084690554
+    },
+    "beitv2_base_patch16_224": {
+        "top_1_accuracy": 0.6813246471226927,
+        "top_5_accuracy": 0.829895041621426
+    },
+    "beitv2_large_patch16_224": {
+        "top_1_accuracy": 0.7338038364096996,
+        "top_5_accuracy": 0.8680781758957655
+    },
+    "beit3_base_patch16_224": {
+        "top_1_accuracy": 0.6317408613825551,
+        "top_5_accuracy": 0.7866449511400652
+    },
+    "beit3_large_patch16_224": {
+        "top_1_accuracy": 0.6632283749547593,
+        "top_5_accuracy": 0.8356858487151647
+    },
+    "deit_small_patch16_224": {
+        "top_1_accuracy": 0.5296778863554108,
+        "top_5_accuracy": 0.7227651103872602
+    },
+    "deit_base_patch16_224": {
+        "top_1_accuracy": 0.5870430691277597,
+        "top_5_accuracy": 0.756786102062975
+    },
+    "deit3_small_patch16_224": {
+        "top_1_accuracy": 0.6065870430691278,
+        "top_5_accuracy": 0.7946073108939559
+    },
+    "deit3_medium_patch16_224": {
+        "top_1_accuracy": 0.6359030039811798,
+        "top_5_accuracy": 0.8023887079261672
+    },
+    "deit3_base_patch16_224": {
+        "top_1_accuracy": 0.6637712631197973,
+        "top_5_accuracy": 0.8192182410423453
+    },
+    "deit3_large_patch16_224": {
+        "top_1_accuracy": 0.678791169019182,
+        "top_5_accuracy": 0.8378574013753167
+    },
+    "average": {
+        "top_1_accuracy": 0.5986246833152369,
+        "top_5_accuracy": 0.7668094261471026
+    }
+}

@@ -152,7 +152,7 @@ def similarity_ranked_accuracy_line_chart_all_in_one(bin_size=50, model_types=["
     for i, data in enumerate(data_list):
         # plt.bar(x + i*width , data["accuracy"], width=width, color=colors[i], label=model_types[i])
         plt.plot(x, data["accuracy"], color=colors[i], linewidth=2, label=model_types[i], marker='o')
-    plt.title(f"Accuracy on similarity ranked composition for different model types by rank ranges (size={bin_size})")
+    plt.title(f"Accuracy on similarity ranked compositions")
     # if bin_size < 10:
     #     plt.xticks((x + total_width / 2 - width / 2)[::5], x_labels[::5], rotation=90)
     # else:
@@ -161,16 +161,16 @@ def similarity_ranked_accuracy_line_chart_all_in_one(bin_size=50, model_types=["
     x_pos = np.arange(0, 1001, 100)
     plt.xticks(x_pos) #, labels=[x_labels[i] for i in x_pos])
 
-    plt.xlabel(f"Rank range (size={bin_size})")
+    plt.xlabel(f"Similarity Rank (bins={int(1000/bin_size)})")
     plt.ylabel("Accuracy")
     plt.grid(alpha=0.3)
     plt.legend()
     plt.tight_layout()
     # save plot
-    save_path = Path(f"plots/similarity_ranked/range_size_{bin_size}")
+    save_path = Path(f"datasets/archive/plots/similarity_ranked")
     save_path.mkdir(exist_ok=True, parents=True)
 
-    figure_name = plt.gca().get_title().replace(" ", "_")
+    figure_name = plt.gca().get_title().replace(" ", "_") + f"_(bins={int(1000/bin_size)})"
     new_name = figure_name
     i = 0
     while (save_path / (new_name + ".png")).exists():
@@ -195,5 +195,11 @@ def get_similarity_rank_of_image(dataset_id):
     return int(similarity_rank)
 
 if __name__=="__main__":
-    bin_size = 20
+    # write all predictions into a file for each model type:
+    write_all_predictions_in_a_file("cnn")
+    write_all_predictions_in_a_file("vit")
+    write_all_predictions_in_a_file("hybrid")
+    
+    
+    bin_size = 50 #20
     similarity_ranked_accuracy_line_chart_all_in_one(bin_size)

@@ -9,7 +9,6 @@ from dataset import load_dataset
 from sklearn.metrics import top_k_accuracy_score
 import numpy as np
 
-
 def inference(data_path, output_path):
     # arguments
     parser = argparse.ArgumentParser()
@@ -17,9 +16,9 @@ def inference(data_path, output_path):
     parser.add_argument('-o', '--outputRoot', help='root directory to saved outputs', default='outputs')
     parser.add_argument('-m', '--modelType', help='model type: cnn, vit, hybrid', default='cnn')
     parser.add_argument('-b', '--batchSize', help='batch size', default=100)
-    parser.add_argument('-n', '--numWorkers', help='number of workers', default=24)
+    parser.add_argument('-n', '--numWorkers', help='number of workers', default=96)
     parser.add_argument('-t', '--task', help='inference on which task: imagenet, background, ranked, placement',
-                        default='background')
+                        default='imagenet')
 
     args = parser.parse_args()
 
@@ -52,15 +51,18 @@ def inference(data_path, output_path):
     }
 
     # get dataset path, output path
-    data_path = data_path  # data_root / tasks[task][0]
-    output_path = output_path  # output_root / tasks[task][1]
+    data_path = data_path #data_root / tasks[task][0]
+    output_path = output_path #output_root / tasks[task][1]
     accuracy_folder = output_path / "accuracy"
     prediction_folder = output_path / "prediction"
+    if task == "imagenet":
+        accuracy_folder = output_path / "accuracy_on_imagenet"
 
     # create output directory
     output_path.mkdir(parents=True, exist_ok=True)
     accuracy_folder.mkdir(parents=True, exist_ok=True)
-    prediction_folder.mkdir(parents=True, exist_ok=True)
+    if task != "imagenet":
+        prediction_folder.mkdir(parents=True, exist_ok=True)
 
     # load the list of models
     model_list = get_model_list(model_type)
@@ -120,15 +122,14 @@ def inference(data_path, output_path):
                         helper.save_prediction_ooc_dataset(output_root, data_path, model_name, image_names, outputs)
                     elif task != "imagenet":
                         image_names = batch[2]
-                        helper.save_prediction(prediction_file_path, metadata_file_path, task, image_names,
-                                               labels.tolist(), outputs)
+                        helper.save_prediction(prediction_file_path, metadata_file_path, task, image_names, labels.tolist(), outputs)
 
                     # save results into lists to calculate accuracy later
                     all_labels.extend(labels.tolist())
                     all_scores.extend(outputs.tolist())
 
             # calculate accuracy
-            if all_labels:  # if not empty dataset
+            if all_labels: # if not empty dataset
                 all_classes = np.arange(1000)  # [0 - 999]
                 top_1_accuracy = top_k_accuracy_score(all_labels, all_scores, k=1, labels=all_classes)
                 top_5_accuracy = top_k_accuracy_score(all_labels, all_scores, k=5, labels=all_classes)
@@ -140,33 +141,36 @@ def inference(data_path, output_path):
                 # after each model, save the accuracy into json and csv files, if all models in list are done, also calculate the average accuracy
                 helper.save_accuracy(accuracy_json_file_path, accuracy_csv_file_path, model_name, top_1_accuracy,
                                      top_5_accuracy, done)
-
+        
 
 if __name__ == '__main__':
+    # inference on ImageNet-1K Val Set
+    inference()
+
+    # inference on OOC set
+    data_path = Path("datasets/ooc")
+    output_path = Path("outputs/ooc")
+    inference(data_path, output_path)
+
     # inference on background alone
-    '''
     data_path = Path("datasets/OOC_Dataset/02_backgrounds")
     output_path = Path("outputs/background")
     inference(data_path, output_path)
-    '''
 
     # inference on similarity ranked compositions
-    '''
+
     data_root = Path("datasets/OOC_Dataset/04_OOC_compositions/similarity_ranked_compositions")
     for folder in data_root.glob("*"):
         print(f"===== Inference on {folder.name} =====")
         data_path = folder
         output_path = Path("outputs/similarity_ranked") / folder.name
         inference(data_path, output_path)
-    '''
 
     # inference on systematic placement compositions
-    '''
     data_root = Path("datasets/OOC_Dataset/04_OOC_compositions/systematic_placements_7x7")
     for folder in data_root.glob("*"):
         data_path = folder
         output_path = Path("outputs/systematic_placements_7x7") / folder.name
         inference(data_path, output_path)
-    '''
 
     print("\nTHE END!")

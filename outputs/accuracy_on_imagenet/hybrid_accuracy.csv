@@ -1,5 +1,4 @@
 ,top_1_accuracy,top_5_accuracy
-ssl_resnet50,0.79236,0.9482
 convnext_small,0.85166,0.97498
 convnext_base,0.85812,0.9786
 convnext_large,0.86606,0.98036

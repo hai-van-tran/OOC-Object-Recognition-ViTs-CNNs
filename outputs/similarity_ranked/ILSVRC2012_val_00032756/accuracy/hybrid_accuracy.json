@@ -1,0 +1,34 @@
+{
+    "ssl_resnet50": {
+        "top_1_accuracy": 0.5443679826149945,
+        "top_5_accuracy": 0.7466497645780514
+    },
+    "convnext_small": {
+        "top_1_accuracy": 0.6548352046360014,
+        "top_5_accuracy": 0.8228902571532054
+    },
+    "convnext_base": {
+        "top_1_accuracy": 0.7075335023542195,
+        "top_5_accuracy": 0.8567547989858747
+    },
+    "convnext_large": {
+        "top_1_accuracy": 0.7151394422310757,
+        "top_5_accuracy": 0.8668960521550163
+    },
+    "convnext_xlarge": {
+        "top_1_accuracy": 0.7345164795363999,
+        "top_5_accuracy": 0.875950742484607
+    },
+    "convnextv2_base": {
+        "top_1_accuracy": 0.7069902209344441,
+        "top_5_accuracy": 0.8562115175660993
+    },
+    "convnextv2_large": {
+        "top_1_accuracy": 0.7245563201738501,
+        "top_5_accuracy": 0.8649040202825063
+    },
+    "average": {
+        "top_1_accuracy": 0.6839913074972835,
+        "top_5_accuracy": 0.8414653076007658
+    }
+}

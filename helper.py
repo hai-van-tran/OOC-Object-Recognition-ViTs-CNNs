@@ -473,6 +473,123 @@ def check_missing_outputs():
         f"Accuracy files: {count_cnn_missing} cnn missing, {count_vit_missing} vit missing, {count_hybrid_missing} hybrid missing")
     print(f"Prediction files: {count_img_missing_pred} img folders missing some pred files")
 
+def statistics_in_ooc_dataset():
+    root = Path("datasets/OOC_Dataset")
+    # count number of background image belonging to imagenet-s, number of classes, number of background types
+    bg_path = root / "02_backgrounds/backgrounds_metadata.csv"
+    imagenet_s_path = root / "01_ImageNet-S-919/imagenet-s_metadata.csv"
+    mask_path = root / "01_ImageNet-S-919/segmentation"
+    val_path = root / "01_ImageNet-S-919/validation"
+
+    bg_df = pd.read_csv(bg_path, usecols=["imagenet_name", "class_hash", "background_type"])
+    in_s_df = pd.read_csv(imagenet_s_path, usecols=["image_name"])
+
+    num_bg_in_s = bg_df["imagenet_name"].isin(in_s_df["image_name"]).sum()
+
+    num_bg_has_valid_mask = 0
+    num_bg_in_val = 0
+    for bg in bg_df["imagenet_name"]:
+        mask = mask_path / bg.replace(".JPEG", ".png")
+        val = val_path / bg
+        if mask.is_file():
+            num_bg_has_valid_mask += 1
+        if val.is_file():
+            num_bg_in_val += 1
+
+    num_class_hash = bg_df["class_hash"].nunique()
+    background_type_count = bg_df["background_type"].value_counts()
+
+    # print(num_bg_in_s)
+    # print(num_bg_has_valid_mask)
+    # print(num_bg_in_val)
+    # print(num_class_hash)
+    # print(background_type_count)
+
+    # object cutouts
+    cutout_path = root / "03_object_cutouts"
+    num_cutouts = sum(1 for p in cutout_path.iterdir() if p.is_dir())
+    # print(num_cutouts)
+
+    # OOC compositions
+    ooc_auto_path = root / "04_OOC_compositions/automatic_compositions/automated_metadata.csv"
+    ooc_handplaced_path = root / "04_OOC_compositions/handplaced_compositions/handplaced_metadata.csv"
+    ooc_handplaced_l_path = root / "04_OOC_compositions/handplaced_large_compositions/backgrounds_metadata.csv"
+    ooc_auto_df = pd.read_csv(ooc_auto_path, usecols=["dataset_id", "object_class_hash"])
+    ooc_handplaced_df = pd.read_csv(ooc_handplaced_path, usecols=["dataset_id", "object_class_hash"])
+    ooc_handplaced_l_df = pd.read_csv(ooc_handplaced_l_path, usecols=["dataset_id", "object_class_hash"])
+    # print(f"{len(ooc_auto_df)} {len(ooc_handplaced_df)} {len(ooc_handplaced_l_df)}")
+
+    ooc_auto_df["bg_name"] = ooc_auto_df["dataset_id"].str.split("_with_").str[0]
+    ooc_handplaced_df["bg_name"] = ooc_handplaced_df["dataset_id"].str.split("_with_").str[0]
+    ooc_handplaced_l_df["bg_name"] = ooc_handplaced_l_df["dataset_id"].str.split("_with_").str[0]
+    combined_ooc_df = pd.concat([ooc_auto_df, ooc_handplaced_df, ooc_handplaced_l_df], ignore_index=True)
+    # print(len(combined_ooc_df))
+    num_usage_bg = combined_ooc_df["bg_name"].value_counts()
+    # for bg, count in num_usage_bg.items():
+    #     print((bg + ".JPEG") in in_s_df["image_name"].values)
+    #     print(f"{bg} {count}")
+
+    num_object_class_auto = ooc_auto_df.groupby("bg_name")["object_class_hash"].nunique()
+    num_object_class_handplaced = ooc_handplaced_df.groupby("bg_name")["object_class_hash"].nunique()
+    num_object_class_handplaced_l = ooc_handplaced_l_df.groupby("bg_name")["object_class_hash"].nunique()
+
+    print(f"auto: {num_object_class_auto.min()} - {num_object_class_auto.max()}")
+    print(f"hand: {num_object_class_handplaced.min()} - {num_object_class_handplaced.max()}")
+    print(f"hand_l: {num_object_class_handplaced_l.min()} - {num_object_class_handplaced_l.max()}")
+
+
+    # similarity ranked composition, systematic placement composition
+    similarity_ranked_path = root / "04_OOC_compositions/similarity_ranked_compositions"
+    bg_dir_list = list(similarity_ranked_path.glob("*"))
+    num_bg = len(bg_dir_list)
+    num_img = 0
+    num_class_object_list = []
+    count = 0
+    for dir in bg_dir_list:
+        img_path = dir / "images"
+        count += 1
+        print(f"{count}..scanning {img_path.name}..")
+
+        num_img += sum(1 for p in img_path.iterdir() if p.is_file())
+
+        simi_ranked_df = pd.read_csv(next(dir.glob("*metadata*.csv")), usecols=["similarity_rank"])
+        num_object_class = simi_ranked_df.nunique()
+        num_class_object_list.append(num_object_class.values[0])
+
+    print(len(num_class_object_list))
+    print(f"Min - Max: {min(num_class_object_list)} - {max(num_class_object_list)}")
+    print(num_class_object_list)
+
+    # print(similarity_ranked_path.name)
+    # print(num_bg)
+    # print(num_img)
+
+
+
+
+    systematic_placement_6x6_path = root / "04_OOC_compositions/systematic_placements_6x6"
+    bg_dir_list = list(systematic_placement_6x6_path.glob("*"))
+    num_bg = len(bg_dir_list)
+    num_img = 0
+    for dir in bg_dir_list:
+        img_path = dir / "images"
+        num_img += sum(1 for p in img_path.iterdir() if p.is_file())
+    # print(systematic_placement_6x6_path.name)
+    # print(num_bg)
+    # print(num_img)
+
+    systematic_placement_7x7_path = root / "04_OOC_compositions/systematic_placements_7x7"
+    bg_dir_list = list(systematic_placement_7x7_path.glob("*"))
+    num_bg = len(bg_dir_list)
+    num_img = 0
+    for dir in bg_dir_list:
+        img_path = dir / "images"
+        num_img += sum(1 for p in img_path.iterdir() if p.is_file())
+    # print(systematic_placement_7x7_path.name)
+    # print(num_bg)
+    # print(num_img)
+
+
 
 if __name__ == '__main__':
     # summarize_accuracy()
@@ -481,3 +598,4 @@ if __name__ == '__main__':
     # bg_list = get_background_imagenet_s_list()
     # pass
     check_missing_outputs()
+    statistics_in_ooc_dataset()

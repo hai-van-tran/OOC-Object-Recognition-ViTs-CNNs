@@ -37,6 +37,8 @@ def plot_accuracy_on_background_only():
         df = pd.read_csv(accuracy_path)
         df.rename(columns={df.columns[0]: "model_name"}, inplace=True)
         df = df.drop(df[df["model_name"] == "average"].index)
+        df["top_1_accuracy"] = df["top_1_accuracy"] * 100
+        df["top_5_accuracy"] = df["top_5_accuracy"] * 100
 
         # compute average accuracy across models
         average_top1 = df["top_1_accuracy"].mean()
@@ -51,7 +53,8 @@ def plot_accuracy_on_background_only():
         plt.bar(x, df["top_1_accuracy"], width=width, color=color_top_1,  label="Top-1 Accuracy")
         plt.bar(x + width, df["top_5_accuracy"], width=width, color=color_top_5, label="Top-5 Accuracy")
         plt.xticks(x + width/2, df["model_name"], rotation=45, ha="right")
-        plt.ylabel("Accuracy")
+        plt.ylabel("Accuracy (%)")
+        plt.ylim(0, 50)
         plt.grid(axis="y", alpha=0.3)
 
         plt.legend()
@@ -72,10 +75,13 @@ def plot_accuracy_on_background_only():
 
     plt.bar(x, average_top1_accuracy_list, width=width, color="#735d78", label="Top-1 Accuracy")
     plt.bar(x + width, average_top5_accuracy_list, width=width, color="#b392ac", label="Top-5 Accuracy")
-    plt.xticks(x + width / 2, model_types, ha="right")
-    plt.ylabel("Average Accuracy")
+    plt.xticks(x + width / 2, model_types, ha="center")
+    plt.ylabel("Average Accuracy (%)")
+    plt.ylim(0, 50)
     plt.grid(axis="y", alpha=0.3)
-
+    # print average accuracy [CNN, ViT, Hybrid]
+    print(average_top1_accuracy_list)
+    print(average_top5_accuracy_list)
     plt.legend()
     plt.title("Average accuracy on background alone")
     plt.tight_layout()
@@ -176,7 +182,7 @@ def plot_histogram_boxplot(mini_bin_size=50, bin_size=10):
     save_path.mkdir(exist_ok=True, parents=True)
     figure_name = f"Semantic_Distance_and_Average_Distance_(bin_{mini_bin_size}_vs_{bin_size})"
 
-    # plt.savefig(save_path / figure_name)
+    plt.savefig(save_path / figure_name)
     plt.show()
 
 def plot_semantic_distance_frequency(single_bins=30, combined_bin=50):
@@ -236,31 +242,45 @@ def plot_semantic_distance_frequency(single_bins=30, combined_bin=50):
     for ax in axes:
         ax.set_ylim(0, ymax * 1.2)
     plt.tight_layout()
-    # plt.show()
+    # save plot
+    save_path = Path("plots/background/semantic_distance")
+    save_path.mkdir(exist_ok=True, parents=True)
+    figure_name = f"Semantic_Distance_Single_Model_Type_(bins={single_bins})"
+    plt.savefig(save_path / figure_name)
+
+    plt.show()
 
     # plot distance frequency 3 model types in one chart
     plt.figure(figsize=(10, 6))
     line_styles = ["-", "--", "-."]
     concat_df_list = [np.concatenate(df_list) for df_list in df_lists]
     for i, concat_df in enumerate(concat_df_list):
-        concat_df = concat_df + 1e-6
-        counts, bin_edges = np.histogram(concat_df, bins=combined_bin, range=(1e-6, 1000+1e-6))
-        print(bin_edges)
+        # add 0.5 to each distance to prevent 0 in logarithmic scale
+        concat_df = concat_df + 0.5 #1e-6
+        counts, bin_edges = np.histogram(concat_df, bins=combined_bin, range=(0.5, 1000 + 0.5))
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
         counts = counts / counts.sum()
         plt.plot(bin_centers, counts, color=colors[i], linestyle=line_styles[i], linewidth=2.5, label=model_titles[i])
 
     plt.xscale("log")
-    plt.xlabel(f"Semantic Distance in log scale (bins={combined_bin})")
+    plt.xlim(0.5, 1100)
+    plt.ylim(0, 0.42)
+    plt.xticks([0.5, 10, 100, 1000], [0, 10, 100, 1000])
+    plt.xlabel(f"Semantic Distance (bins={combined_bin})")
     plt.ylabel("Normalized Frequency")
     plt.legend()
-    plt.grid(True, alpha=0.3, which="both")
+    plt.grid(True, alpha=0.3, which="major")
     plt.title("Semantic Distance Frequency in Different Model Types")
-    # plt.show()
+    # save plot
+    figure_name = f"Semantic_Distance_All_Model_Types_(bins={combined_bin})"
+    plt.savefig(save_path / figure_name)
+
+    plt.show()
 
 if __name__=="__main__":
     # plot accuracy
-    # plot_accuracy_on_background_only()
+    plot_accuracy_on_background_only()
 
     # plot similarity distance of predictions to actual classes
+    plot_semantic_distance_frequency(30, 100)
     plot_semantic_distance_frequency(30, 1000)

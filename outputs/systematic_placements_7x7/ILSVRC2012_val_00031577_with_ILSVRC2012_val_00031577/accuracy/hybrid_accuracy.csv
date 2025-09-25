@@ -1,0 +1,9 @@
+,top_1_accuracy,top_5_accuracy
+ssl_resnet50,0.7142857142857143,1.0
+convnext_small,0.7142857142857143,1.0
+convnext_base,1.0,1.0
+convnext_large,0.7142857142857143,1.0
+convnext_xlarge,0.7142857142857143,1.0
+convnextv2_base,0.7142857142857143,1.0
+convnextv2_large,1.0,1.0
+average,0.7959183673469389,1.0

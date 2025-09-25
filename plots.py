@@ -502,6 +502,59 @@ def plot_background_only():
     histogram_chart_ranking_all_in_one(100)
     pass
 
+def plot_accuracy_imagenet_vs_ooc():
+    imagenet_output_path = Path("outputs/accuracy_on_imagenet")
+    ooc_output_path = Path("outputs/accuracy_on_ooc")
+    model_types = ["cnn", "vit", "hybrid"]
+
+    imagenet_avg_accuracies = []
+    ooc_avg_accuracies = []
+    results = []
+    for model_type in model_types:
+        imagenet_accuracy_file = imagenet_output_path / (model_type + "_accuracy.csv")
+        ooc_accuracy_file = ooc_output_path / (model_type + "_accuracy.csv")
+
+        imagenet_df = pd.read_csv(imagenet_accuracy_file, names=["model", "top_1_accuracy", "top_5_accuracy"], header=0)
+        ooc_df = pd.read_csv(ooc_accuracy_file, names=["model", "top_1_accuracy", "top_5_accuracy"], header=0)
+        ooc_df = ooc_df[~ooc_df["model"].str.startswith("deit")]
+
+        results.append({
+            "dataset": "ImageNet-1K Val",
+            "model_type": model_type,
+            "avg_accuracy": imagenet_df["top_1_accuracy"].mean() * 100
+        })
+        results.append({
+            "dataset": "OOC Dataset",
+            "model_type": model_type,
+            "avg_accuracy": ooc_df["top_1_accuracy"].mean() * 100
+        })
+
+    results_df = pd.DataFrame(results)
+    plot_df = results_df.pivot(index="model_type", columns="dataset", values="avg_accuracy")
+    ax = plot_df.plot(kind="bar", figsize=(8, 6), color=["#4a4e69", "#c9ada7"], rot=0)
+    for p in ax.patches:
+        ax.annotate(
+            f"{p.get_height():.2f}",
+            (p.get_x() + p.get_width() / 2, p.get_height()),
+            ha="center",
+            va="bottom",
+            fontsize=9
+        )
+    plt.title("Average Accuracy on ImageNet-1K Val and OOC Dataset")
+    plt.ylim(0, 100)
+    plt.xlabel("Model Type")
+    plt.ylabel("Accuracy (%)")
+    plt.legend(loc="upper right")
+    plt.tight_layout()
+    # save plot
+    save_path = Path("plots/imagenet_vs_ooc")
+    save_path.mkdir(exist_ok=True, parents=True)
+    figure_name = "Accuracy_on_ImageNet_and_OOC"
+    plt.savefig(save_path / figure_name)
+
+    plt.show()
+
 
 if __name__ == '__main__':
-    plot_background_only()
+    # plot_background_only()
+    plot_accuracy_imagenet_vs_ooc()

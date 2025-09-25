@@ -23,7 +23,7 @@ def write_all_predictions_in_a_file(output_root, model_type):
     path_list = output_root.glob("*")
 
     # path to csv file to save all predictions
-    save_path = Path("outputs/overall") / output_root.name
+    save_path = Path("datasets/archive/overall") / output_root.name
     save_path.mkdir(exist_ok=True, parents=True)
     csv_path = save_path / (model_type + "_prediction.csv")
 
@@ -113,7 +113,7 @@ def heatmap_accuracy_on_systematic_placements(pred_path, model_type):
         save_path = Path(f"plots/systematic_placements/grid_{total_rows}x{total_columns}")
         save_path.mkdir(exist_ok=True, parents=True)
         figure_name = plt.gca().get_title().replace(" ", "_")
-        # plt.savefig(save_path / figure_name)
+        plt.savefig(save_path / figure_name)
         plt.show()
 
     elif model_type == "":
@@ -149,14 +149,19 @@ def heatmap_accuracy_on_systematic_placements(pred_path, model_type):
 
 if __name__=="__main__":
     # write predictions into a csv file for each model type
-    # output_path = Path("outputs/systematic_placements_7x7")
-    # write_all_predictions_in_a_file(output_path, "cnn")
-    # write_all_predictions_in_a_file(output_path, "vit")
-    # write_all_predictions_in_a_file(output_path, "hybrid")
+    output_paths = [Path("outputs/systematic_placements_6x6"), Path("outputs/systematic_placements_7x7")]
+    for path in output_paths:
+        write_all_predictions_in_a_file(path, "cnn")
+        write_all_predictions_in_a_file(path, "vit")
+        write_all_predictions_in_a_file(path, "hybrid")
 
     # create heatmap of accuracy
-    prediction_path = Path("outputs/overall/systematic_placements_7x7")
-    # heatmap_accuracy_on_systematic_placements(prediction_path, "cnn")
-    # heatmap_accuracy_on_systematic_placements(prediction_path, "vit")
-    # heatmap_accuracy_on_systematic_placements(prediction_path, "hybrid")
-    # heatmap_accuracy_on_systematic_placements(prediction_path, "")
+    prediction_paths = [
+        Path("datasets/archive/overall/systematic_placements_6x6"),
+        Path("datasets/archive/overall/systematic_placements_7x7")
+    ]
+    for path in prediction_paths:
+        heatmap_accuracy_on_systematic_placements(path, "cnn")
+        heatmap_accuracy_on_systematic_placements(path, "vit")
+        heatmap_accuracy_on_systematic_placements(path, "hybrid")
+        heatmap_accuracy_on_systematic_placements(path, "")
