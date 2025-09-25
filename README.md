@@ -3,7 +3,7 @@
 <a id="overview"></a> 
 ## 1. Project overview
 
-In this project, the out-of-context (OOC) object recognition dataset generated with the novel [OOC Dataset Creator](https://github.com/ToastyDom/OOC-Dataset-Creator) [[1]](#1) is used to conduct experiments on OOC performance and translation invariance across three model families: Convolutional Neural Networks (CNNs), Vision Transformers (ViTs) and hybrid architectures. The project provides supporting scripts for conducting the experiments and visualizing the results presented in my bachelor thesis titled **Evaluating Out-of-Context Object Recognition in Vision Transformers and CNNs**.
+In this project, the out-of-context (OOC) object recognition dataset generated using the toolkit from the novel [OOC Dataset Creator](https://github.com/ToastyDom/OOC-Dataset-Creator) [[1]](#1) is used to conduct experiments on OOC performance and translation invariance across three model families: Convolutional Neural Networks (CNNs), Vision Transformers (ViTs) and hybrid architectures. The project provides supporting scripts for conducting the experiments and visualizing the results presented in my bachelor thesis titled **Evaluating Out-of-Context Object Recognition in Vision Transformers and CNNs**.
 
 The experiments conducted in this project include:
 
